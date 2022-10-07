@@ -3,6 +3,7 @@ const multer = require('multer')
 const itemsController = require('./controllers/items.controller')
 const upload = multer()
 const userController = require('./controllers/users.controller')
+const adminController = require('./controllers/admins.controller')
 const typeCheck = require('./middleware/typeCheck.middleware')
 
 /**
