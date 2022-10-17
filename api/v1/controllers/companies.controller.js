@@ -4,13 +4,14 @@ const JWTHelper = require('../../../lib/jwt.helper')
 const S3Helper = require('../../../lib/s3.helper')
 
 class companiesController {
+	//Read
 	/**
 	 * Get any user, by providing the matching ID
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
 	static getAny(req, res) {
-		const body = JSON.parse(req.params.obj)
+		const body = JSON.parse(req.params.id) //Actually an object
 		companyModel
 			.find(body ?? {})
 			.then((results) => {
@@ -21,37 +22,6 @@ class companiesController {
 			.catch((err) => {
 				JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
 			})
-	}
-
-	/**
-	 * Submit the data for a new user and send off the verification email
-	 * @param {import('express').Request} req
-	 * @param {import('express').Response} res
-	 */
-	static async signUp(req, res) {
-		const body = req.body
-		const now = Date.now().toString(16)
-		const manageupload = await S3Helper.upload(req.files['logo'], `${now}logo`)
-		if (manageupload) body.logo = { key: `${now}logo`, link: manageupload.Location }
-		const manageupload2 = await S3Helper.upload(req.files['certificate'], `${now}cert`)
-		if (manageupload2) body.certificate = { key: `${now}cert`, link: manageupload.Location }
-		const new_user = new companyModel(body)
-		const valResult = await new_user.validate().catch((err) => {
-			JSONResponse.error(
-				req,
-				res,
-				400,
-				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]].properties
-					.message,
-				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]]
-			)
-		})
-		if (valResult) {
-			const saved_user = await new_user.save().catch((err) => {
-				JSONResponse.error(req, res, 400, err.message, err)
-			})
-			JSONResponse.success(req, res, 201, saved_user)
-		}
 	}
 
 	/**
@@ -101,6 +71,38 @@ class companiesController {
 		} else JSONResponse.error(req, res, 401, 'No session!')
 	}
 
+	//Create
+	/**
+	 * Submit the data for a new user and send off the verification email
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	static async signUp(req, res) {
+		const body = req.body
+		const now = Date.now().toString(16)
+		const manageupload = await S3Helper.upload(req.files['logo'], `${now}logo`)
+		if (manageupload) body.logo = { key: `${now}logo`, link: manageupload.Location }
+		const manageupload2 = await S3Helper.upload(req.files['certificate'], `${now}cert`)
+		if (manageupload2) body.certificate = { key: `${now}cert`, link: manageupload.Location }
+		const new_user = new companyModel(body)
+		const valResult = await new_user.validate().catch((err) => {
+			JSONResponse.error(
+				req,
+				res,
+				400,
+				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]].properties
+					.message,
+				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]]
+			)
+		})
+		if (valResult) {
+			const saved_user = await new_user.save().catch((err) => {
+				JSONResponse.error(req, res, 400, err.message, err)
+			})
+			JSONResponse.success(req, res, 201, saved_user)
+		}
+	}
+
 	//Update
 	/**
 	 * Activate a user account for whatever purposes
@@ -135,7 +137,8 @@ class companiesController {
 	 */
 	static async updateUser(req, res) {
 		const body = req.body
-		body.logo = req.file
+		body.logo = req.files['logo']
+		body.certificate = req.files['certificate']
 		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 		const uid = decoded.self
 		const user = await companyModel.findByIdAndUpdate(uid, body, { new: true }).catch((err) => {
@@ -163,6 +166,7 @@ class companiesController {
 		} else JSONResponse.error(req, res, 404, 'Could not find specified user')
 	}
 
+	//Delete
 	/**
 	 * Deletes the current user
 	 * @param {import('express').Request} req

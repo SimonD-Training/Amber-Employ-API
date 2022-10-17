@@ -5,6 +5,8 @@ const upload = multer()
 const companiesController = require('./controllers/companies.controller')
 const adminsController = require('./controllers/admins.controller')
 const typeCheck = require('./middleware/typeCheck.middleware')
+const postsController = require('./controllers/posts.controller')
+const activeCheck = require('./middleware/activeCheck.middleware')
 
 /**
  * Generates the API Docs from the list of routes in the system and attaches descriptions to them
@@ -60,6 +62,23 @@ router
 
 router.route('/admin').post(adminsController.signIn).get(adminsController.session)
 
+router
+	.route('/posts')
+	.all(typeCheck('user'), activeCheck)
+	.post(postsController.add)
+	.get(postsController.get)
+
+router
+	.route('/posts/:id')
+	.all(typeCheck('user'), activeCheck)
+	.patch(activeCheck, postsController.update)
+	.delete(activeCheck, postsController.destroy)
+
+router
+	.route('/posts/admins/:id')
+	.all(typeCheck('admin'))
+	.patch(activeCheck, postsController.updateAny)
+	.delete(activeCheck, postsController.destroyAny)
 // router
 // 	.route('/items')
 // 	.get(itemsController.get)
