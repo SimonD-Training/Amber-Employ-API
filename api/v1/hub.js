@@ -2,8 +2,8 @@ const router = require('express').Router()
 const multer = require('multer')
 const itemsController = require('./controllers/items.controller')
 const upload = multer()
-const userController = require('./controllers/users.controller')
-const adminController = require('./controllers/admins.controller')
+const companiesController = require('./controllers/companies.controller')
+const adminsController = require('./controllers/admins.controller')
 const typeCheck = require('./middleware/typeCheck.middleware')
 
 /**
@@ -41,32 +41,35 @@ router.all('', (req, res) => {
 })
 
 router
-	.route('/users')
-	.post(userController.signIn)
-	.get(userController.session)
-	.patch(userController.updateUser)
+	.route('/company')
+	.post(companiesController.signIn)
+	.get(companiesController.session)
+	.patch(upload.fields(['logo', 'certificate']), companiesController.updateUser)
 	.delete(logout)
-router.route('/users/register/:id').get(userController.verifyUser)
-router.route('/users/register').post(upload.single('profile_pic'), userController.signUp).delete(userController.destroyUser)
+router.route('/company/register/:id').get(companiesController.verifyUser)
 router
-	.route('/users/:id')
+	.route('/company/register')
+	.post(upload.fields(['logo', 'certificate']), companiesController.signUp)
+	.delete(companiesController.destroyUser)
+router
+	.route('/companies/:id')
 	.all(typeCheck(['admin']))
-	.get(userController.getAny)
-	.patch(userController.updateUserAny)
-	.delete(userController.destroyUserAny)
+	.get(companiesController.getAny)
+	.patch(companiesController.updateUserAny)
+	.delete(companiesController.destroyUserAny)
 
-router.route('/admins').post(adminController.signIn).get(adminController.session)
+router.route('/admin').post(adminsController.signIn).get(adminsController.session)
 
-router
-	.route('/items')
-	.get(itemsController.get)
-	.all(typeCheck(['admin']))
-	.post(upload.single('image'), itemsController.add)
-router
-	.route('/items/:id')
-	.all(typeCheck(['admin']))
-	.patch(itemsController.update)
-	.delete(itemsController.destroy)
+// router
+// 	.route('/items')
+// 	.get(itemsController.get)
+// 	.all(typeCheck(['admin']))
+// 	.post(upload.single('image'), itemsController.add)
+// router
+// 	.route('/items/:id')
+// 	.all(typeCheck(['admin']))
+// 	.patch(itemsController.update)
+// 	.delete(itemsController.destroy)
 
 router.route('/logout').all(logout)
 
