@@ -1,12 +1,12 @@
 const router = require('express').Router()
 const multer = require('multer')
-const itemsController = require('./controllers/items.controller')
 const upload = multer()
 const companiesController = require('./controllers/companies.controller')
 const adminsController = require('./controllers/admins.controller')
 const typeCheck = require('./middleware/typeCheck.middleware')
 const postsController = require('./controllers/posts.controller')
 const activeCheck = require('./middleware/activeCheck.middleware')
+const usersController = require('./controllers/users.controller')
 
 /**
  * Generates the API Docs from the list of routes in the system and attaches descriptions to them
@@ -41,6 +41,21 @@ router.all('', (req, res) => {
 	}
 	res.render('summary', body)
 })
+
+router
+	.route('/users')
+	.post(usersController.signIn)
+	.get(usersController.session)
+	.patch(usersController.updateUser)
+	.delete(logout)
+router.route('/users/register/:id').get(usersController.verifyUser)
+router.route('/users/register').post(usersController.signUp).delete(usersController.destroyUser)
+router
+	.route('/users/:id')
+	.all(typeCheck(['admin']))
+	.get(usersController.getAny)
+	.patch(usersController.updateUserAny)
+	.delete(usersController.destroyUserAny)
 
 router
 	.route('/company')
