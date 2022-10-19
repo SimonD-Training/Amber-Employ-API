@@ -58,14 +58,14 @@ router
 	.delete(usersController.destroyUserAny)
 
 router
-	.route('/company')
+	.route('/companies')
 	.post(companiesController.signIn)
 	.get(companiesController.session)
 	.patch(upload.fields(['logo', 'certificate']), companiesController.updateUser)
 	.delete(logout)
-router.route('/company/register/:id').get(companiesController.verifyUser)
+router.route('/companies/register/:id').get(companiesController.verifyUser)
 router
-	.route('/company/register')
+	.route('/companies/register')
 	.post(upload.fields(['logo', 'certificate']), companiesController.signUp)
 	.delete(companiesController.destroyUser)
 router
@@ -94,6 +94,7 @@ router
 	.all(typeCheck('admin'))
 	.patch(activeCheck, postsController.updateAny)
 	.delete(activeCheck, postsController.destroyAny)
+
 // router
 // 	.route('/items')
 // 	.get(itemsController.get)
