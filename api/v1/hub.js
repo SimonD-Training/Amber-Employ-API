@@ -70,8 +70,8 @@ router
 	.delete(companiesController.destroyUser)
 router
 	.route('/companies/:id')
-	.all(typeCheck(['admin']))
 	.get(companiesController.getAny)
+	.all(typeCheck(['admin']))
 	.patch(companiesController.updateUserAny)
 	.delete(companiesController.destroyUserAny)
 

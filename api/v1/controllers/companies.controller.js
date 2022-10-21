@@ -99,7 +99,7 @@ class companiesController {
 			const saved_user = await new_user.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})
-			JSONResponse.success(req, res, 201, saved_user)
+			JSONResponse.success(req, res, 201, 'Successful registration')
 		}
 	}
 
