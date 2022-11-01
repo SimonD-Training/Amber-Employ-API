@@ -1,7 +1,6 @@
 const userModel = require('../../../lib/db/models/user.model')
 const JSONResponse = require('../../../lib/json.helper')
 const JWTHelper = require('../../../lib/jwt.helper')
-const S3Helper = require('../../../lib/s3.helper')
 
 class usersController {
 	/**
@@ -9,10 +8,37 @@ class usersController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static getAny(req, res) {
-		const body = JSON.parse(req.params.obj)
+	static get(req, res) {
+		let { page, limit, field, value } = req.query
+		let filterBody = {}
+		if (field.length == value.length) {
+			field.forEach((e, index) => {
+				filterBody[e] = value[index]
+			})
+		}
 		userModel
-			.find(body ?? {})
+			.find(filterBody)
+			.skip((page - 1) * limit)
+			.limit(limit)
+			.then((results) => {
+				if (results.length > 0)
+					JSONResponse.success(req, res, 200, 'Collected matching users', results)
+				else JSONResponse.error(req, res, 404, 'Could not find any users')
+			})
+			.catch((err) => {
+				JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
+			})
+	}
+
+	/**
+	 * Get any user, by providing the matching ID
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	static getId(req, res) {
+		const id = JSON.parse(req.params.id)
+		userModel
+			.findById(id)
 			.then((results) => {
 				if (results.length > 0)
 					JSONResponse.success(req, res, 200, 'Collected matching users', results)
@@ -85,15 +111,19 @@ class usersController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async session(req, res) {
-		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
-		if (decoded && decoded.type == 1) {
-			const user = await userModel.findById(decoded.self).catch((err) => {
-				JSONResponse.error(req, res, 500, 'Failure handling user model', err)
-			})
-			if (user) JSONResponse.success(req, res, 200, 'Session resumed', user)
-			else JSONResponse.error(req, res, 404, 'Account does not exist')
-		} else JSONResponse.error(req, res, 401, 'No session!')
+	 static async session(req, res, next) {
+		if (!req.query) {
+			const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
+			if (decoded && decoded.type == 1) {
+				const user = await userModel.findById(decoded.self).catch((err) => {
+					JSONResponse.error(req, res, 500, 'Failure handling user model', err)
+				})
+				if (user) JSONResponse.success(req, res, 200, 'Session resumed', user)
+				else JSONResponse.error(req, res, 404, 'Account does not exist')
+			} else JSONResponse.error(req, res, 401, 'No session!')
+		} else {
+			next()
+		}
 	}
 
 	//Update

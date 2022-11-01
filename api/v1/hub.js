@@ -42,36 +42,40 @@ router.all('', (req, res) => {
 	res.render('summary', body)
 })
 
+// TODO Conform controllers to the below
 router
 	.route('/users')
-	.post(usersController.signIn)
-	.get(usersController.session)
+	.post(upload.single('profile_pic'), usersController.signUp)
+	.get(usersController.session, typeCheck(['admin']), usersController.get)
 	.patch(usersController.updateUser)
-	.delete(logout)
-router.route('/users/register/:id').get(usersController.verifyUser)
-router.route('/users/register').post(usersController.signUp).delete(usersController.destroyUser)
+	.delete(usersController.destroyUser)
+
+router.all('/users/login', usersController.signIn)
+
+router.all('/users/verify/:id(^[a-fA-Fd]{24}$)', usersController.verifyUser)
+
 router
-	.route('/users/:id')
+	.route('/users/:id(^[a-fA-Fd]{24}$)')
 	.all(typeCheck(['admin']))
-	.get(usersController.getAny)
+	.get(usersController.getId)
 	.patch(usersController.updateUserAny)
 	.delete(usersController.destroyUserAny)
 
 router
 	.route('/companies')
-	.post(companiesController.signIn)
-	.get(companiesController.session)
-	.patch(upload.fields(['logo', 'certificate']), companiesController.updateUser)
-	.delete(logout)
-router.route('/companies/register/:id').get(companiesController.verifyUser)
-router
-	.route('/companies/register')
-	.post(upload.fields(['logo', 'certificate']), companiesController.signUp)
+	.post(upload.single('profile_pic'), companiesController.signUp)
+	.get(companiesController.session, typeCheck(['admin']), companiesController.get)
+	.patch(companiesController.updateUser)
 	.delete(companiesController.destroyUser)
+
+router.all('/companies/login', companiesController.signIn)
+
+router.all('/companies/verify/:id(^[a-fA-Fd]{24}$)', companiesController.verifyUser)
+
 router
-	.route('/companies/:id')
-	.get(companiesController.getAny)
+	.route('/companies/:id(^[a-fA-Fd]{24}$)')
 	.all(typeCheck(['admin']))
+	.get(companiesController.getId)
 	.patch(companiesController.updateUserAny)
 	.delete(companiesController.destroyUserAny)
 
