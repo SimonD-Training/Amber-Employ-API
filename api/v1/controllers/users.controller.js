@@ -16,7 +16,7 @@ class usersController {
 				filterBody[e] = value[index]
 			})
 		}
-		if (page < 0) page = 0
+		if (page < 0) page = 1
 		userModel
 			.find(filterBody)
 			.skip((page - 1) * limit)
