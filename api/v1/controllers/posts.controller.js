@@ -11,11 +11,22 @@ class postsController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async getAny(req, res) {
-		const body = JSON.parse(req.params.id) //Actually an object
-		const list = await postModel.find(body ?? {}).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Database Error', err)
-		})
+	static async get(req, res) {
+		let { page, limit, field, value } = req.query
+		let filterBody = {}
+		if (field.length == value.length) {
+			field.forEach((e, index) => {
+				filterBody[e] = value[index]
+			})
+		}
+		if (page < 0) page = 1
+		const list = await postModel
+			.find(filterBody)
+			.skip((page - 1) * limit)
+			.limit(limit)
+			.catch((err) => {
+				JSONResponse.error(req, res, 500, 'Database Error', err)
+			})
 		if (list.length > 0)
 			JSONResponse.success(req, res, 200, 'Collected matching documents', list)
 		else JSONResponse.error(req, res, 404, 'Could not find any matching documents')

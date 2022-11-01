@@ -16,6 +16,7 @@ class usersController {
 				filterBody[e] = value[index]
 			})
 		}
+		if (page < 0) page = 0
 		userModel
 			.find(filterBody)
 			.skip((page - 1) * limit)
@@ -111,7 +112,7 @@ class usersController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	 static async session(req, res, next) {
+	static async session(req, res, next) {
 		if (!req.query) {
 			const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 			if (decoded && decoded.type == 1) {

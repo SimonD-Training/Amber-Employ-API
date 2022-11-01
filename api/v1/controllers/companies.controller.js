@@ -18,6 +18,7 @@ class companiesController {
 				filterBody[e] = value[index]
 			})
 		}
+		if (page < 0) page = 1
 		companyModel
 			.find(filterBody)
 			.skip((page - 1) * limit)
