@@ -100,8 +100,8 @@ router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyUse
 
 router
 	.route('/companies/:id([a-fA-Fd]{24})')
-	.all(typeCheck(['admin']))
 	.get(companiesController.getId)
+	.all(typeCheck(['admin']))
 	.patch(companiesController.updateUserAny)
 	.delete(companiesController.destroyUserAny)
 
