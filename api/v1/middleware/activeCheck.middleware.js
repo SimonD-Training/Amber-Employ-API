@@ -12,6 +12,13 @@ const activeCheck = async (req, res, next) => {
 			if (!result.active) {
 				JSONResponse.error(req, res, 401, 'Email unverified')
 				return
+			} else next()
+			break
+		case 2:
+			result = await userModel.findById(decoded.self)
+			if (!result.active) {
+				JSONResponse.error(req, res, 401, 'Email unverified')
+				return
 			} else if (!result.admin_active) {
 				JSONResponse.error(req, res, 401, 'Certificate still processing')
 				return

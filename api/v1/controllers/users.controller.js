@@ -100,7 +100,7 @@ class usersController {
 					},
 					'jwt_auth'
 				)
-				JSONResponse.success(req, res, 200, 'Successful login')
+				JSONResponse.success(req, res, 200, 'Successful login', user)
 			} else {
 				JSONResponse.error(req, res, 401, 'Password does not match')
 			}

@@ -71,7 +71,7 @@ class companiesController {
 					req,
 					res,
 					{
-						type: 1,
+						type: 2,
 						self: result._id.toString(),
 					},
 					'jwt_auth'
@@ -91,7 +91,7 @@ class companiesController {
 	static async session(req, res, next) {
 		if (!req.query) {
 			const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
-			if (decoded && decoded.type == 1) {
+			if (decoded && decoded.type == 2) {
 				const user = await companyModel.findById(decoded.self).catch((err) => {
 					JSONResponse.error(req, res, 500, 'Failure handling user model', err)
 				})
@@ -112,10 +112,10 @@ class companiesController {
 	static async signUp(req, res) {
 		const body = req.body
 		const now = Date.now().toString(16)
-		const manageupload = await S3Helper.upload(req.files['logo'], `${now}logo`)
-		if (manageupload) body.logo = { key: `${now}logo`, link: manageupload.Location }
-		const manageupload2 = await S3Helper.upload(req.files['certificate'], `${now}cert`)
-		if (manageupload2) body.certificate = { key: `${now}cert`, link: manageupload.Location }
+		const manageupload = await S3Helper.upload(req.files['logo'][0], `${now}_logo`)
+		if (manageupload) body.logo = { key: `${now}_logo`, link: manageupload.Location }
+		const manageupload2 = await S3Helper.upload(req.files['certificate'][0], `${now}_cert`)
+		if (manageupload2) body.certificate = { key: `${now}_cert`, link: manageupload.Location }
 		const new_user = new companyModel(body)
 		const valResult = await new_user.validate().catch((err) => {
 			JSONResponse.error(

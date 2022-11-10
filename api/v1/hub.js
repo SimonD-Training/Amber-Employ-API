@@ -7,6 +7,9 @@ const typeCheck = require('./middleware/typeCheck.middleware')
 const postsController = require('./controllers/posts.controller')
 const activeCheck = require('./middleware/activeCheck.middleware')
 const usersController = require('./controllers/users.controller')
+const S3Helper = require('../../lib/s3.helper')
+const JSONResponse = require('../../lib/json.helper')
+const { bufferToStream } = require('../../lib/converters.helper')
 
 /**
  * Generates the API Docs from the list of routes in the system and attaches descriptions to them
@@ -24,17 +27,34 @@ router.all('', (req, res) => {
 	}
 	const descriptions = [
 		`API DOCS URL`,
-		`Route for managing logins, session resumptions, user profile updates and deleting profile.`,
-		`Activates a newly registered user.`,
-		`Registers a new user.`,
-		`Administrative management of users via IDs.`,
+		`Manage users as a CRUD collection where an ID is not needed.\n
+		POST to Sign Up\n
+		GET to validate a session or (admin) Get users as CRUD collection with pagination and filtration\n
+		PATCH to update the current user\n
+		DELETE to delete the current user`,
+		`Manage companies as a CRUD collection where an ID is not needed.\n
+		POST to Sign Up\n
+		GET to validate a session or (admin) Get companies as CRUD collection with pagination and filtration\n
+		PATCH to update the current company\n
+		DELETE to delete the current company`,
 		`Route for managing logins and session resumption for admins.`,
-		`Route for collecting all items or (admin)creating an item.`,
-		`Administrative management of items via IDs.`,
+		`Manage posts as a CRUD collection where an ID is not needed.\n
+		POST to create a new post\n
+		GET to seek posts with pagination and optional filtering`,
+		`GET all your posts as a company`,
+		`Manage posts as a CRUD collection where an ID is needed.\n
+		GET to get a post\n
+		PATCH to update one of your posts\n
+		DELETE to delete one of your posts`,
+		`Administrative management of posts as a CRUD collection where an ID is needed.\n
+		GET to get any post\n
+		PATCH to update any post\n
+		DELETE to delete any post`,
 		`Log out for any session.`,
+		`Access S3 stored files`,
 	]
 	let body = {
-		name: 'BasicAPI v1',
+		name: 'AmberEmployAPI v1',
 		version: '1.0.0',
 		routes: concat,
 		description: descriptions,
@@ -52,10 +72,10 @@ router
 
 router.all('/users/login', usersController.signIn)
 
-router.all('/users/verify/:id(^[a-fA-Fd]{24}$)', usersController.verifyUser)
+router.all('/users/verify/:id([a-fA-Fd]{24})', usersController.verifyUser)
 
 router
-	.route('/users/:id(^[a-fA-Fd]{24}$)')
+	.route('/users/:id([a-fA-Fd]{24})')
 	.all(typeCheck(['admin']))
 	.get(usersController.getId)
 	.patch(usersController.updateUserAny)
@@ -63,17 +83,23 @@ router
 
 router
 	.route('/companies')
-	.post(upload.single('profile_pic'), companiesController.signUp)
+	.post(
+		upload.fields([
+			{ name: 'logo', maxCount: 1 },
+			{ name: 'certificate', maxCount: 1 },
+		]),
+		companiesController.signUp
+	)
 	.get(companiesController.session, typeCheck(['admin']), companiesController.get)
 	.patch(companiesController.updateUser)
 	.delete(companiesController.destroyUser)
 
 router.all('/companies/login', companiesController.signIn)
 
-router.all('/companies/verify/:id(^[a-fA-Fd]{24}$)', companiesController.verifyUser)
+router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyUser)
 
 router
-	.route('/companies/:id(^[a-fA-Fd]{24}$)')
+	.route('/companies/:id([a-fA-Fd]{24})')
 	.all(typeCheck(['admin']))
 	.get(companiesController.getId)
 	.patch(companiesController.updateUserAny)
@@ -84,33 +110,37 @@ router.route('/admin').post(adminsController.signIn).get(adminsController.sessio
 router
 	.route('/posts')
 	.all(typeCheck('user'), activeCheck)
-	.post(postsController.add)
+	.post(upload.single('banner'), postsController.add)
 	.get(postsController.get)
 
+router.route('/posts/company').all(typeCheck('company')).get(activeCheck, postsController.getMine)
+
 router
-	.route('/posts/:id')
+	.route('/posts/:id([a-fA-Fd]{24})')
 	.all(typeCheck('user'), activeCheck)
 	.patch(activeCheck, postsController.update)
 	.delete(activeCheck, postsController.destroy)
+	.all(typeCheck('user', 'admin'), activeCheck)
+	.get(activeCheck, postsController.getOne)
 
 router
-	.route('/posts/admins/:id')
+	.route('/posts/admins/:id([a-fA-Fd]{24})')
 	.all(typeCheck('admin'))
-	.patch(activeCheck, postsController.updateAny)
-	.delete(activeCheck, postsController.destroyAny)
-
-// router
-// 	.route('/items')
-// 	.get(itemsController.get)
-// 	.all(typeCheck(['admin']))
-// 	.post(upload.single('image'), itemsController.add)
-// router
-// 	.route('/items/:id')
-// 	.all(typeCheck(['admin']))
-// 	.patch(itemsController.update)
-// 	.delete(itemsController.destroy)
+	.patch(postsController.updateAny)
+	.delete(postsController.destroyAny)
 
 router.route('/logout').all(logout)
+
+router.route('/s3/:key').get(typeCheck(['user', 'admin']), async (req, res) => {
+	let file = await S3Helper.download(req.params.key).catch((err) => {
+		console.error(err)
+		JSONResponse.error(req, res, 500, 'Failed to communicate with file storage')
+	})
+	let responseStream = bufferToStream(file.Body)
+	if (file) {
+		responseStream.pipe(res)
+	} else JSONResponse.error(req, res, 404, 'File not found')
+})
 
 module.exports = router
 

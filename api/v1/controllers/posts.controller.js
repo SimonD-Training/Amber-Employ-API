@@ -33,11 +33,26 @@ class postsController {
 	}
 
 	/**
+	 * Get a post by ID
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	static async getOne(req, res) {
+		let id = req.params.id
+		let post = await postModel.findById(id).catch((err) => {
+			JSONResponse.error(req, res, 500, 'Database Error', err)
+		})
+		if (post) {
+			JSONResponse.success(req, res, 200, 'Collected matching document', post)
+		} else JSONResponse.error(req, res, 404, 'Could not find any matching documents')
+	}
+
+	/**
 	 * Get your posts
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async get(req, res) {
+	static async getMine(req, res) {
 		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 		const list = await postModel.find({ author: decoded.self }).catch((err) => {
 			JSONResponse.error(req, res, 500, 'Database Error', err)
@@ -56,8 +71,8 @@ class postsController {
 	static async add(req, res) {
 		let body = req.body
 		const now = Date.now().toString(16)
-		const manageupload = await S3Helper.upload(req.files['banner'], `${now}banner`)
-		if (manageupload) body.banner = { key: `${now}banner`, link: manageupload.Location }
+		const manageupload = await S3Helper.upload(req.file, `${now}_banner`)
+		if (manageupload) body.banner = { key: `${now}_banner`, link: manageupload.Location }
 		let newdoc = new postModel(body)
 		let invalid = undefined
 		await newdoc.validate().catch((err) => {

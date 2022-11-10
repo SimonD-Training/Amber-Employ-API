@@ -5,13 +5,13 @@ const typeCheck = (types) => {
 	const originaltypes = types
 	for (let index = 0; index < types.length; index++) {
 		switch (types[index]) {
-			case 'driver':
+			case 'admin':
 				types[index] = 0
 				break
 			case 'user':
 				types[index] = 1
 				break
-			case 'admin':
+			case 'company':
 				types[index] = 2
 				break
 		}
