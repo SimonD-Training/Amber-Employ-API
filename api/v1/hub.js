@@ -27,28 +27,40 @@ router.all('', (req, res) => {
 	}
 	const descriptions = [
 		`API DOCS URL`,
-		`Manage users as a CRUD collection where an ID is not needed.\n
-		POST to Sign Up\n
-		GET to validate a session or (admin) Get users as CRUD collection with pagination and filtration\n
-		PATCH to update the current user\n
+		`Manage users as a CRUD collection where an ID is not needed. &nbsp;
+		POST to Sign Up &nbsp;
+		GET to validate a session or (admin) Get users as CRUD collection with pagination and filtration &nbsp;
+		PATCH to update the current user &nbsp;
 		DELETE to delete the current user`,
-		`Manage companies as a CRUD collection where an ID is not needed.\n
-		POST to Sign Up\n
-		GET to validate a session or (admin) Get companies as CRUD collection with pagination and filtration\n
-		PATCH to update the current company\n
+		`Log In as a user`,
+		`Verify a new account`,
+		`Administrative management of users as a CRUD collection where an ID is needed. &nbsp;
+		GET to retrieve a user by ID &nbsp;
+		PATCH to update a user by ID &nbsp;
+		DELETE to delete a user by ID`,
+		`Manage companies as a CRUD collection where an ID is not needed. &nbsp;
+		POST to Sign Up &nbsp;
+		GET to validate a session or (admin) Get companies as CRUD collection with pagination and filtration &nbsp;
+		PATCH to update the current company &nbsp;
 		DELETE to delete the current company`,
+		`Log In as a company`,
+		`Verify a new account`,
+		`Administrative management of companiess as a CRUD collection where an ID is needed. &nbsp;
+		GET to retrieve a company by ID &nbsp;
+		PATCH to update a company by ID &nbsp;
+		DELETE to delete a company by ID`,
 		`Route for managing logins and session resumption for admins.`,
-		`Manage posts as a CRUD collection where an ID is not needed.\n
-		POST to create a new post\n
+		`Manage posts as a CRUD collection where an ID is not needed. &nbsp;
+		POST to create a new post &nbsp;
 		GET to seek posts with pagination and optional filtering`,
 		`GET all your posts as a company`,
-		`Manage posts as a CRUD collection where an ID is needed.\n
-		GET to get a post\n
-		PATCH to update one of your posts\n
+		`Manage posts as a CRUD collection where an ID is needed. &nbsp;
+		GET to get a post &nbsp;
+		PATCH to update one of your posts &nbsp;
 		DELETE to delete one of your posts`,
-		`Administrative management of posts as a CRUD collection where an ID is needed.\n
-		GET to get any post\n
-		PATCH to update any post\n
+		`Administrative management of posts as a CRUD collection where an ID is needed. &nbsp;
+		GET to get any post &nbsp;
+		PATCH to update any post &nbsp;
 		DELETE to delete any post`,
 		`Log out for any session.`,
 		`Access S3 stored files`,
