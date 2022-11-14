@@ -14,7 +14,7 @@ class postsController {
 	static async get(req, res) {
 		let { page, limit, field, value } = req.query
 		let filterBody = {}
-		if (field.length == value.length) {
+		if (field && value && field.length == value.length) {
 			field.forEach((e, index) => {
 				filterBody[e] = value[index]
 			})
