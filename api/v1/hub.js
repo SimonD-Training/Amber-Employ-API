@@ -121,9 +121,9 @@ router.route('/admin').post(adminsController.signIn).get(adminsController.sessio
 
 router
 	.route('/posts')
-	.all(typeCheck('user'), activeCheck)
-	.post(upload.single('banner'), postsController.add)
 	.get(postsController.get)
+	.all(typeCheck('company'), activeCheck)
+	.post(upload.single('banner'), postsController.add)
 
 router.route('/posts/company').all(typeCheck('company')).get(activeCheck, postsController.getMine)
 
