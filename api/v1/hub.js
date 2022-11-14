@@ -122,37 +122,42 @@ router.route('/admin').post(adminsController.signIn).get(adminsController.sessio
 router
 	.route('/posts')
 	.get(postsController.get)
-	.all(typeCheck('company'), activeCheck)
+	.all(typeCheck(['company']), activeCheck)
 	.post(upload.single('banner'), postsController.add)
 
-router.route('/posts/company').all(typeCheck('company')).get(activeCheck, postsController.getMine)
+router
+	.route('/posts/company')
+	.all(typeCheck(['company']))
+	.get(activeCheck, postsController.getMine)
 
 router
 	.route('/posts/:id([a-fA-Fd]{24})')
-	.all(typeCheck('user'), activeCheck)
+	.all(typeCheck(['user']), activeCheck)
 	.patch(activeCheck, postsController.update)
 	.delete(activeCheck, postsController.destroy)
-	.all(typeCheck('user', 'admin'), activeCheck)
+	.all(typeCheck(['user', 'admin']), activeCheck)
 	.get(activeCheck, postsController.getOne)
 
 router
 	.route('/posts/admins/:id([a-fA-Fd]{24})')
-	// .all(typeCheck('admin'))
+	// .all(typeCheck(['admin']))
 	.patch(postsController.updateAny)
 	.delete(postsController.destroyAny)
 
 router.route('/logout').all(logout)
 
-router.route('/s3/:key').get(/*typeCheck(['user', 'admin']),*/ async (req, res) => {
-	let file = await S3Helper.download(req.params.key).catch((err) => {
-		console.error(err)
-		JSONResponse.error(req, res, 500, 'Failed to communicate with file storage')
-	})
-	let responseStream = bufferToStream(file.Body)
-	if (file) {
-		responseStream.pipe(res)
-	} else JSONResponse.error(req, res, 404, 'File not found')
-})
+router.route('/s3/:key').get(
+	/*typeCheck(['user', 'admin']),*/ async (req, res) => {
+		let file = await S3Helper.download(req.params.key).catch((err) => {
+			console.error(err)
+			JSONResponse.error(req, res, 500, 'Failed to communicate with file storage')
+		})
+		let responseStream = bufferToStream(file.Body)
+		if (file) {
+			responseStream.pipe(res)
+		} else JSONResponse.error(req, res, 404, 'File not found')
+	}
+)
 
 module.exports = router
 
