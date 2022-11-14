@@ -78,7 +78,7 @@ router.all('', (req, res) => {
 router
 	.route('/users')
 	.post(upload.single('profile_pic'), usersController.signUp)
-	.get(usersController.session, typeCheck(['admin']), usersController.get)
+	.get(usersController.session, /*typeCheck(['admin']),*/ usersController.get)
 	.patch(usersController.updateUser)
 	.delete(usersController.destroyUser)
 
@@ -88,7 +88,7 @@ router.all('/users/verify/:id([a-fA-Fd]{24})', usersController.verifyUser)
 
 router
 	.route('/users/:id([a-fA-Fd]{24})')
-	.all(typeCheck(['admin']))
+	// .all(typeCheck(['admin']))
 	.get(usersController.getId)
 	.patch(usersController.updateUserAny)
 	.delete(usersController.destroyUserAny)
@@ -102,7 +102,7 @@ router
 		]),
 		companiesController.signUp
 	)
-	.get(companiesController.session, typeCheck(['admin']), companiesController.get)
+	.get(companiesController.session, /*typeCheck(['admin']),*/ companiesController.get)
 	.patch(companiesController.updateUser)
 	.delete(companiesController.destroyUser)
 
@@ -113,7 +113,7 @@ router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyUse
 router
 	.route('/companies/:id([a-fA-Fd]{24})')
 	.get(companiesController.getId)
-	.all(typeCheck(['admin']))
+	// .all(typeCheck(['admin']))
 	.patch(companiesController.updateUserAny)
 	.delete(companiesController.destroyUserAny)
 
@@ -137,13 +137,13 @@ router
 
 router
 	.route('/posts/admins/:id([a-fA-Fd]{24})')
-	.all(typeCheck('admin'))
+	// .all(typeCheck('admin'))
 	.patch(postsController.updateAny)
 	.delete(postsController.destroyAny)
 
 router.route('/logout').all(logout)
 
-router.route('/s3/:key').get(typeCheck(['user', 'admin']), async (req, res) => {
+router.route('/s3/:key').get(/*typeCheck(['user', 'admin']),*/ async (req, res) => {
 	let file = await S3Helper.download(req.params.key).catch((err) => {
 		console.error(err)
 		JSONResponse.error(req, res, 500, 'Failed to communicate with file storage')
