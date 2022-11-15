@@ -114,8 +114,8 @@ router
 	.route('/companies/:id([a-fA-Fd]{24})')
 	.get(companiesController.getId)
 	// .all(typeCheck(['admin']))
-	.patch(companiesController.updateUserAny)
-	.delete(companiesController.destroyUserAny)
+	.patch(companiesController.updateCompanyAny)
+	.delete(companiesController.destroyCompanyAny)
 
 router.route('/admin').post(adminsController.signIn).get(adminsController.session)
 
