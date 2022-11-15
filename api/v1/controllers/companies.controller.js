@@ -167,7 +167,7 @@ class companiesController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async updatecompany(req, res) {
+	static async updateCompany(req, res) {
 		const body = req.body
 		body.logo = req.files['logo']
 		body.certificate = req.files['certificate']
@@ -188,7 +188,7 @@ class companiesController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async updatecompanyAny(req, res) {
+	static async updateCompanyAny(req, res) {
 		const uid = req.params.id
 		const body = req.body
 		body.logo = req.file
@@ -208,7 +208,7 @@ class companiesController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async destroycompany(req, res) {
+	static async destroyCompany(req, res) {
 		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 		const uid = decoded.self
 		const company = await companyModel.findByIdAndDelete(uid).catch((err) => {
@@ -226,7 +226,7 @@ class companiesController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async destroycompanyAny(req, res) {
+	static async destroyCompanyAny(req, res) {
 		const uid = req.params.id
 		const company = await companyModel.findByIdAndDelete(uid).catch((err) => {
 			JSONResponse.error(req, res, 500, 'Fatal error handling company model', err)

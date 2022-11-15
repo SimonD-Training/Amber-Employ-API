@@ -103,8 +103,8 @@ router
 		companiesController.signUp
 	)
 	.get(companiesController.session, /*typeCheck(['admin']),*/ companiesController.get)
-	.patch(companiesController.updateUser)
-	.delete(companiesController.destroyUser)
+	.patch(companiesController.updateCompany)
+	.delete(companiesController.destroyCompany)
 
 router.all('/companies/login', companiesController.signIn)
 
@@ -133,7 +133,7 @@ router
 router
 	.route('/posts/:id([a-fA-Fd]{24})')
 	// .all(typeCheck(['user', 'admin']), activeCheck)
-	.get( postsController.getOne)
+	.get(postsController.getOne)
 	// .all(typeCheck(['user']))
 	.patch(postsController.update)
 	.delete(postsController.destroy)
