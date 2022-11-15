@@ -108,7 +108,7 @@ router
 
 router.all('/companies/login', companiesController.signIn)
 
-router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyUser)
+router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyCompany)
 
 router
 	.route('/companies/:id([a-fA-Fd]{24})')

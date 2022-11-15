@@ -141,7 +141,7 @@ class companiesController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async verifycompany(req, res) {
+	static async verifyCompany(req, res) {
 		const uid = req.params.id
 		const company = await companyModel.findByIdAndUpdate(uid, { active: true }).catch((err) => {
 			res.status(500).render('verify', {
