@@ -122,7 +122,7 @@ router.route('/admin').post(adminsController.signIn).get(adminsController.sessio
 router
 	.route('/posts')
 	.get(postsController.get)
-	.all(typeCheck(['company']), activeCheck)
+	// .all(typeCheck(['company']), activeCheck)
 	.post(upload.single('banner'), postsController.add)
 
 router
@@ -132,11 +132,11 @@ router
 
 router
 	.route('/posts/:id([a-fA-Fd]{24})')
-	.all(typeCheck(['user']), activeCheck)
+	// .all(typeCheck(['user', 'admin']), activeCheck)
+	.get(activeCheck, postsController.getOne)
+	// .all(typeCheck(['user']), activeCheck)
 	.patch(activeCheck, postsController.update)
 	.delete(activeCheck, postsController.destroy)
-	.all(typeCheck(['user', 'admin']), activeCheck)
-	.get(activeCheck, postsController.getOne)
 
 router
 	.route('/posts/admins/:id([a-fA-Fd]{24})')
