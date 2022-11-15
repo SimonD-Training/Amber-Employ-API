@@ -6,7 +6,7 @@ const S3Helper = require('../../../lib/s3.helper')
 class companiesController {
 	//Read
 	/**
-	 * Get any user, by providing the matching ID
+	 * Get any company, by providing the matching ID
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
@@ -25,16 +25,16 @@ class companiesController {
 			.limit(limit)
 			.then((results) => {
 				if (results.length > 0)
-					JSONResponse.success(req, res, 200, 'Collected matching users', results)
-				else JSONResponse.error(req, res, 404, 'Could not find any users')
+					JSONResponse.success(req, res, 200, 'Collected matching companys', results)
+				else JSONResponse.error(req, res, 404, 'Could not find any companys')
 			})
 			.catch((err) => {
-				JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
+				JSONResponse.error(req, res, 500, 'Fatal error handling company model', err)
 			})
 	}
 
 	/**
-	 * Get any user, by providing the matching ID
+	 * Get any company, by providing the matching ID
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
@@ -44,26 +44,26 @@ class companiesController {
 			.findById(id)
 			.then((results) => {
 				if (results.length > 0)
-					JSONResponse.success(req, res, 200, 'Collected matching users', results)
-				else JSONResponse.error(req, res, 404, 'Could not find any users')
+					JSONResponse.success(req, res, 200, 'Collected matching companys', results)
+				else JSONResponse.error(req, res, 404, 'Could not find any companys')
 			})
 			.catch((err) => {
-				JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
+				JSONResponse.error(req, res, 500, 'Fatal error handling company model', err)
 			})
 	}
 
 	/**
-	 * Use an email and password to log in to a user account
+	 * Use an email and password to log in to a company account
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
 	static async signIn(req, res) {
 		const body = req.body
-		const user = await companyModel.findOne({ email: body.email }).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
+		const company = await companyModel.findOne({ email: body.email }).catch((err) => {
+			JSONResponse.error(req, res, 500, 'Fatal error handling company model', err)
 		})
-		if (user) {
-			const login = await user.SignIn(body.password).catch((err) => {
+		if (company) {
+			const login = await company.SignIn(body.password).catch((err) => {
 				JSONResponse.error(req, res, 500, 'Fatal Error! Server Down!', err)
 			})
 			if (login) {
@@ -72,7 +72,7 @@ class companiesController {
 					res,
 					{
 						type: 2,
-						self: user._id.toString(),
+						self: company._id.toString(),
 					},
 					'jwt_auth'
 				)
@@ -92,10 +92,10 @@ class companiesController {
 		if (!req.query) {
 			const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 			if (decoded && decoded.type == 2) {
-				const user = await companyModel.findById(decoded.self).catch((err) => {
-					JSONResponse.error(req, res, 500, 'Failure handling user model', err)
+				const company = await companyModel.findById(decoded.self).catch((err) => {
+					JSONResponse.error(req, res, 500, 'Failure handling company model', err)
 				})
-				if (user) JSONResponse.success(req, res, 200, 'Session resumed', user)
+				if (company) JSONResponse.success(req, res, 200, 'Session resumed', company)
 				else JSONResponse.error(req, res, 404, 'Account does not exist')
 			} else JSONResponse.error(req, res, 401, 'No session!')
 		} else {
@@ -105,7 +105,7 @@ class companiesController {
 
 	//Create
 	/**
-	 * Submit the data for a new user and send off the verification email
+	 * Submit the data for a new company and send off the verification email
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
@@ -116,8 +116,8 @@ class companiesController {
 		if (manageupload) body.logo = { key: `${now}_logo`, link: manageupload.Location }
 		const manageupload2 = await S3Helper.upload(req.files['certificate'][0], `${now}_cert`)
 		if (manageupload2) body.certificate = { key: `${now}_cert`, link: manageupload.Location }
-		const new_user = new companyModel(body)
-		const valResult = await new_user.validate().catch((err) => {
+		const new_company = new companyModel(body)
+		const valResult = await new_company.validate().catch((err) => {
 			JSONResponse.error(
 				req,
 				res,
@@ -128,7 +128,7 @@ class companiesController {
 			)
 		})
 		if (valResult) {
-			await new_user.save().catch((err) => {
+			await new_company.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})
 			JSONResponse.success(req, res, 201, 'Successful registration')
@@ -137,100 +137,104 @@ class companiesController {
 
 	//Update
 	/**
-	 * Activate a user account for whatever purposes
+	 * Activate a company account for whatever purposes
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async verifyUser(req, res) {
+	static async verifycompany(req, res) {
 		const uid = req.params.id
-		const user = await companyModel.findByIdAndUpdate(uid, { active: true }).catch((err) => {
+		const company = await companyModel.findByIdAndUpdate(uid, { active: true }).catch((err) => {
 			res.status(500).render('verify', {
 				Title: 'Fatal Error! Server Down!',
 				Details: err.message,
 			})
 		})
-		if (user) {
+		if (company) {
 			res.status(200).render('verify', {
-				Title: 'User verified successfully',
+				Title: 'company verified successfully',
 				Link: 'https://your.website/login',
 			})
 		} else {
 			res.status(200).render('verify', {
-				Title: 'No User Found!',
+				Title: 'No company Found!',
 				Details: `Trying copying your activation link directly if you attempted to type it`,
 			})
 		}
 	}
 
 	/**
-	 * Updates the current user with new data
+	 * Updates the current company with new data
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async updateUser(req, res) {
+	static async updatecompany(req, res) {
 		const body = req.body
 		body.logo = req.files['logo']
 		body.certificate = req.files['certificate']
 		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 		const uid = decoded.self
-		const user = await companyModel.findByIdAndUpdate(uid, body, { new: true }).catch((err) => {
-			JSONResponse.error(req, res, 500, err.message, err)
-		})
-		if (user) {
-			JSONResponse.success(req, res, 200, 'Successfully updated user', result)
-		} else JSONResponse.error(req, res, 404, 'Could not find specified user')
+		const company = await companyModel
+			.findByIdAndUpdate(uid, body, { new: true })
+			.catch((err) => {
+				JSONResponse.error(req, res, 500, err.message, err)
+			})
+		if (company) {
+			JSONResponse.success(req, res, 200, 'Successfully updated company', result)
+		} else JSONResponse.error(req, res, 404, 'Could not find specified company')
 	}
 
 	/**
-	 * Updates any user provided an ID
+	 * Updates any company provided an ID
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async updateUserAny(req, res) {
+	static async updatecompanyAny(req, res) {
 		const uid = req.params.id
 		const body = req.body
 		body.logo = req.file
-		const user = await companyModel.findByIdAndUpdate(uid, body, { new: true }).catch((err) => {
-			JSONResponse.error(req, res, 500, err.message, err)
-		})
-		if (user) {
-			JSONResponse.success(req, res, 200, 'Successfully updated user', result)
-		} else JSONResponse.error(req, res, 404, 'Could not find specified user')
+		const company = await companyModel
+			.findByIdAndUpdate(uid, body, { new: true })
+			.catch((err) => {
+				JSONResponse.error(req, res, 500, err.message, err)
+			})
+		if (company) {
+			JSONResponse.success(req, res, 200, 'Successfully updated company', result)
+		} else JSONResponse.error(req, res, 404, 'Could not find specified company')
 	}
 
 	//Delete
 	/**
-	 * Deletes the current user
+	 * Deletes the current company
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async destroyUser(req, res) {
+	static async destroycompany(req, res) {
 		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 		const uid = decoded.self
-		const user = await companyModel.findByIdAndDelete(uid).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
+		const company = await companyModel.findByIdAndDelete(uid).catch((err) => {
+			JSONResponse.error(req, res, 500, 'Fatal error handling company model', err)
 		})
-		if (user) {
-			JSONResponse.success(req, res, 200, 'Successfully removed user')
+		if (company) {
+			JSONResponse.success(req, res, 200, 'Successfully removed company')
 		} else {
-			JSONResponse.error(req, res, 404, 'Could not find specified user')
+			JSONResponse.error(req, res, 404, 'Could not find specified company')
 		}
 	}
 
 	/**
-	 * Deletes any user provided an ID
+	 * Deletes any company provided an ID
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	static async destroyUserAny(req, res) {
+	static async destroycompanyAny(req, res) {
 		const uid = req.params.id
-		const user = await companyModel.findByIdAndDelete(uid).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
+		const company = await companyModel.findByIdAndDelete(uid).catch((err) => {
+			JSONResponse.error(req, res, 500, 'Fatal error handling company model', err)
 		})
-		if (user) {
-			JSONResponse.success(req, res, 200, 'Successfully removed user')
+		if (company) {
+			JSONResponse.success(req, res, 200, 'Successfully removed company')
 		} else {
-			JSONResponse.error(req, res, 404, 'Could not find specified user')
+			JSONResponse.error(req, res, 404, 'Could not find specified company')
 		}
 	}
 }
