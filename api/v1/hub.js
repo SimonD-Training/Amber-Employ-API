@@ -127,16 +127,16 @@ router
 
 router
 	.route('/posts/company')
-	.all(typeCheck(['company']))
-	.get(activeCheck, postsController.getMine)
+	.all(typeCheck(['company']), activeCheck)
+	.get(postsController.getMine)
 
 router
 	.route('/posts/:id([a-fA-Fd]{24})')
 	// .all(typeCheck(['user', 'admin']), activeCheck)
-	.get(activeCheck, postsController.getOne)
-	// .all(typeCheck(['user']), activeCheck)
-	.patch(activeCheck, postsController.update)
-	.delete(activeCheck, postsController.destroy)
+	.get( postsController.getOne)
+	// .all(typeCheck(['user']))
+	.patch(postsController.update)
+	.delete(postsController.destroy)
 
 router
 	.route('/posts/admins/:id([a-fA-Fd]{24})')
