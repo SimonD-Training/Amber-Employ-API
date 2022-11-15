@@ -76,7 +76,7 @@ class companiesController {
 					},
 					'jwt_auth'
 				)
-				JSONResponse.success(req, res, 200, 'Successful login')
+				JSONResponse.success(req, res, 200, 'Successful login', company)
 			} else {
 				JSONResponse.error(req, res, 401, 'Password does not match')
 			}
@@ -179,7 +179,7 @@ class companiesController {
 				JSONResponse.error(req, res, 500, err.message, err)
 			})
 		if (company) {
-			JSONResponse.success(req, res, 200, 'Successfully updated company', result)
+			JSONResponse.success(req, res, 200, 'Successfully updated company', company)
 		} else JSONResponse.error(req, res, 404, 'Could not find specified company')
 	}
 
@@ -198,7 +198,7 @@ class companiesController {
 				JSONResponse.error(req, res, 500, err.message, err)
 			})
 		if (company) {
-			JSONResponse.success(req, res, 200, 'Successfully updated company', result)
+			JSONResponse.success(req, res, 200, 'Successfully updated company', company)
 		} else JSONResponse.error(req, res, 404, 'Could not find specified company')
 	}
 
