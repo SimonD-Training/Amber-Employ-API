@@ -63,7 +63,7 @@ class companiesController {
 			JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
 		})
 		if (user) {
-			const login = await result.SignIn(body.password).catch((err) => {
+			const login = await user.SignIn(body.password).catch((err) => {
 				JSONResponse.error(req, res, 500, 'Fatal Error! Server Down!', err)
 			})
 			if (login) {
@@ -72,7 +72,7 @@ class companiesController {
 					res,
 					{
 						type: 2,
-						self: result._id.toString(),
+						self: user._id.toString(),
 					},
 					'jwt_auth'
 				)
@@ -128,7 +128,7 @@ class companiesController {
 			)
 		})
 		if (valResult) {
-			const saved_user = await new_user.save().catch((err) => {
+			await new_user.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})
 			JSONResponse.success(req, res, 201, 'Successful registration')
