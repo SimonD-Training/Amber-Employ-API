@@ -87,7 +87,7 @@ class usersController {
 			JSONResponse.error(req, res, 500, 'Fatal error handling user model', err)
 		})
 		if (user) {
-			const login = await result.SignIn(body.password).catch((err) => {
+			const login = await user.SignIn(body.password).catch((err) => {
 				JSONResponse.error(req, res, 500, 'Fatal Error! Server Down!', err)
 			})
 			if (login) {
@@ -96,7 +96,7 @@ class usersController {
 					res,
 					{
 						type: 1,
-						self: result._id.toString(),
+						self: user._id.toString(),
 					},
 					'jwt_auth'
 				)
@@ -168,7 +168,7 @@ class usersController {
 			JSONResponse.error(req, res, 500, err.message, err)
 		})
 		if (user) {
-			JSONResponse.success(req, res, 200, 'Successfully updated user', result)
+			JSONResponse.success(req, res, 200, 'Successfully updated user', user)
 		} else JSONResponse.error(req, res, 404, 'Could not find specified user')
 	}
 
@@ -185,7 +185,7 @@ class usersController {
 			JSONResponse.error(req, res, 500, err.message, err)
 		})
 		if (user) {
-			JSONResponse.success(req, res, 200, 'Successfully updated user', result)
+			JSONResponse.success(req, res, 200, 'Successfully updated user', user)
 		} else JSONResponse.error(req, res, 404, 'Could not find specified user')
 	}
 
