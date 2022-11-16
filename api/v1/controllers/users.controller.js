@@ -58,7 +58,9 @@ class usersController {
 	static async signUp(req, res) {
 		const body = req.body
 		const new_user = new userModel(body)
-		const valResult = await new_user.validate().catch((err) => {
+		let valid = true
+		await new_user.validate().catch((err) => {
+			valid = false
 			JSONResponse.error(
 				req,
 				res,
@@ -68,8 +70,7 @@ class usersController {
 				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]]
 			)
 		})
-		console.log(valResult)
-		if (valResult) {
+		if (valid) {
 			const user = await new_user.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})

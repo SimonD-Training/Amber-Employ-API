@@ -117,7 +117,9 @@ class companiesController {
 		const manageupload2 = await S3Helper.upload(req.files['certificate'][0], `${now}_cert`)
 		if (manageupload2) body.certificate = { key: `${now}_cert`, link: manageupload.Location }
 		const new_company = new companyModel(body)
-		const valResult = await new_company.validate().catch((err) => {
+		let valid = true
+		await new_company.validate().catch((err) => {
+			valid = false
 			JSONResponse.error(
 				req,
 				res,
@@ -127,7 +129,7 @@ class companiesController {
 				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]]
 			)
 		})
-		if (valResult) {
+		if (valid) {
 			const company = await new_company.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})
