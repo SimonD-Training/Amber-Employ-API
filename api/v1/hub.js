@@ -77,7 +77,7 @@ router.all('', (req, res) => {
 // TODO Conform controllers to the below
 router
 	.route('/users')
-	.post(upload.single('profile_pic'), usersController.signUp)
+	.post(usersController.signUp)
 	.get(usersController.session, /*typeCheck(['admin']),*/ usersController.get)
 	.patch(usersController.updateUser)
 	.delete(usersController.destroyUser)
