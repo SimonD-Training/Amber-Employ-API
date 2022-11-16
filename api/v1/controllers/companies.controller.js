@@ -128,10 +128,10 @@ class companiesController {
 			)
 		})
 		if (valResult) {
-			await new_company.save().catch((err) => {
+			const company = await new_company.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})
-			JSONResponse.success(req, res, 201, 'Successful registration')
+			if (company) JSONResponse.success(req, res, 201, 'Successful registration')
 		}
 	}
 

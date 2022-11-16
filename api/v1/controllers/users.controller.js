@@ -69,10 +69,10 @@ class usersController {
 			)
 		})
 		if (valResult) {
-			await new_user.save().catch((err) => {
+			const user = await new_user.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
 			})
-			JSONResponse.success(req, res, 201, 'Successful registration')
+			if (user) JSONResponse.success(req, res, 201, 'Successful registration')
 		}
 	}
 
