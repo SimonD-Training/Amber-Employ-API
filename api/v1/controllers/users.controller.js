@@ -68,7 +68,7 @@ class usersController {
 				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]]
 			)
 		})
-		print(valResult)
+		console.log(valResult)
 		if (valResult) {
 			const user = await new_user.save().catch((err) => {
 				JSONResponse.error(req, res, 400, err.message, err)
