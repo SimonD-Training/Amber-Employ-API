@@ -45,7 +45,7 @@ router.all('', (req, res) => {
 		DELETE to delete the current company`,
 		`Log In as a company`,
 		`Verify a new account`,
-		`Administrative management of companiess as a CRUD collection where an ID is needed. &nbsp;
+		`Administrative management of companies as a CRUD collection where an ID is needed. &nbsp;
 		GET to retrieve a company by ID &nbsp;
 		PATCH to update a company by ID &nbsp;
 		DELETE to delete a company by ID`,
@@ -84,10 +84,12 @@ router
 
 router.all('/users/login', usersController.signIn)
 
-router.all('/users/verify/:id([a-fA-Fd]{24})', usersController.verifyUser)
+// router.all('/users/verify/:id([a-fA-Fd]{24})', usersController.verifyUser)
+router.all('/users/verify/:id', usersController.verifyUser)
 
 router
-	.route('/users/:id([a-fA-Fd]{24})')
+	// .route('/users/:id([a-fA-Fd]{24})')
+	.route('/users/:id')
 	// .all(typeCheck(['admin']))
 	.get(usersController.getId)
 	.patch(usersController.updateUserAny)
@@ -108,10 +110,12 @@ router
 
 router.all('/companies/login', companiesController.signIn)
 
-router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyCompany)
+// router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyCompany)
+router.all('/companies/verify/:id', companiesController.verifyCompany)
 
 router
-	.route('/companies/:id([a-fA-Fd]{24})')
+	// .route('/companies/:id([a-fA-Fd]{24})')
+	.route('/companies/:id')
 	.get(companiesController.getId)
 	// .all(typeCheck(['admin']))
 	.patch(companiesController.updateCompanyAny)
@@ -131,7 +135,8 @@ router
 	.get(postsController.getMine)
 
 router
-	.route('/posts/:id([a-fA-Fd]{24})')
+	// .route('/posts/:id([a-fA-Fd]{24})')
+	.route('/posts/:id')
 	// .all(typeCheck(['user', 'admin']), activeCheck)
 	.get(postsController.getOne)
 	// .all(typeCheck(['user']))
@@ -139,7 +144,8 @@ router
 	.delete(postsController.destroy)
 
 router
-	.route('/posts/admins/:id([a-fA-Fd]{24})')
+	// .route('/posts/admins/:id([a-fA-Fd]{24})')
+	.route('/posts/admins/:id')
 	// .all(typeCheck(['admin']))
 	.patch(postsController.updateAny)
 	.delete(postsController.destroyAny)
