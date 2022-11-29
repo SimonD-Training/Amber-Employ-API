@@ -15,7 +15,7 @@ app.all('', (req, res) => {
 	})
 })
 
-Middlewares
+// Middlewares
 app.options(
 	'*',
 	cors({
