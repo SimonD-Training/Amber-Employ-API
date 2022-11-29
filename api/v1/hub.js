@@ -1,15 +1,15 @@
-const router = require('express').Router();
-const multer = require('multer');
-const upload = multer();
-const companiesController = require('./controllers/companies.controller');
-const adminsController = require('./controllers/admins.controller');
-const typeCheck = require('./middleware/typeCheck.middleware');
-const postsController = require('./controllers/posts.controller');
-const activeCheck = require('./middleware/activeCheck.middleware');
-const usersController = require('./controllers/users.controller');
-const S3Helper = require('../../lib/s3.helper');
-const JSONResponse = require('../../lib/json.helper');
-const { bufferToStream } = require('../../lib/converters.helper');
+const router = require('express').Router()
+const multer = require('multer')
+const upload = multer()
+const companiesController = require('./controllers/companies.controller')
+const adminsController = require('./controllers/admins.controller')
+const typeCheck = require('./middleware/typeCheck.middleware')
+const postsController = require('./controllers/posts.controller')
+const activeCheck = require('./middleware/activeCheck.middleware')
+const usersController = require('./controllers/users.controller')
+const S3Helper = require('../../lib/s3.helper')
+const JSONResponse = require('../../lib/json.helper')
+const { bufferToStream } = require('../../lib/converters.helper')
 
 /**
  * Generates the API Docs from the list of routes in the system and attaches descriptions to them
@@ -18,12 +18,12 @@ const { bufferToStream } = require('../../lib/converters.helper');
  * to this order.
  */
 router.all('', (req, res) => {
-	let concat = [];
+	let concat = []
 	for (let layer of router.stack) {
 		concat.push({
 			path: layer.route.path,
 			methods: Object.keys(layer.route.methods),
-		});
+		})
 	}
 	const descriptions = [
 		`API DOCS URL`,
@@ -64,15 +64,15 @@ router.all('', (req, res) => {
 		DELETE to delete any post`,
 		`Log out for any session.`,
 		`Access S3 stored files`,
-	];
+	]
 	let body = {
 		name: 'AmberEmployAPI v1',
 		version: '1.0.0',
 		routes: concat,
 		description: descriptions,
-	};
-	res.render('summary', body);
-});
+	}
+	res.render('summary', body)
+})
 
 // TODO Conform controllers to the below
 router
@@ -80,12 +80,12 @@ router
 	.post(usersController.signUp)
 	.get(usersController.session, /*typeCheck(['admin']),*/ usersController.get)
 	.patch(usersController.updateUser)
-	.delete(usersController.destroyUser);
+	.delete(usersController.destroyUser)
 
-router.all('/users/login', usersController.signIn);
+router.all('/users/login', usersController.signIn)
 
 // router.all('/users/verify/:id([a-fA-Fd]{24})', usersController.verifyUser)
-router.all('/users/verify/:id', usersController.verifyUser);
+router.all('/users/verify/:id', usersController.verifyUser)
 
 router
 	// .route('/users/:id([a-fA-Fd]{24})')
@@ -93,7 +93,7 @@ router
 	// .all(typeCheck(['admin']))
 	.get(usersController.getId)
 	.patch(usersController.updateUserAny)
-	.delete(usersController.destroyUserAny);
+	.delete(usersController.destroyUserAny)
 
 router
 	.route('/companies')
@@ -106,12 +106,12 @@ router
 	)
 	.get(companiesController.session, /*typeCheck(['admin']),*/ companiesController.get)
 	.patch(companiesController.updateCompany)
-	.delete(companiesController.destroyCompany);
+	.delete(companiesController.destroyCompany)
 
-router.all('/companies/login', companiesController.signIn);
+router.all('/companies/login', companiesController.signIn)
 
 // router.all('/companies/verify/:id([a-fA-Fd]{24})', companiesController.verifyCompany)
-router.all('/companies/verify/:id', companiesController.verifyCompany);
+router.all('/companies/verify/:id', companiesController.verifyCompany)
 
 router
 	// .route('/companies/:id([a-fA-Fd]{24})')
@@ -119,20 +119,20 @@ router
 	.get(companiesController.getId)
 	// .all(typeCheck(['admin']))
 	.patch(companiesController.updateCompanyAny)
-	.delete(companiesController.destroyCompanyAny);
+	.delete(companiesController.destroyCompanyAny)
 
-router.route('/admin').post(adminsController.signIn).get(adminsController.session);
+router.route('/admin').post(adminsController.signIn).get(adminsController.session)
 
 router
 	.route('/posts')
 	.get(postsController.get)
 	.all(typeCheck(['company']) /* activeCheck*/)
-	.post(upload.single('banner'), postsController.add);
+	.post(upload.single('banner'), postsController.add)
 
 router
 	.route('/posts/company')
 	.all(typeCheck(['company']), activeCheck)
-	.get(postsController.getMine);
+	.get(postsController.getMine)
 
 router
 	// .route('/posts/:id([a-fA-Fd]{24})')
@@ -141,33 +141,33 @@ router
 	.get(postsController.getOne)
 	// .all(typeCheck(['user']))
 	.patch(postsController.update)
-	.delete(postsController.destroy);
+	.delete(postsController.destroy)
 
 router
 	// .route('/posts/admins/:id([a-fA-Fd]{24})')
 	.route('/posts/admins/:id')
 	// .all(typeCheck(['admin']))
 	.patch(postsController.updateAny)
-	.delete(postsController.destroyAny);
+	.delete(postsController.destroyAny)
 
-router.route('/logout').all(logout);
+router.route('/logout').all(logout)
 
 router.route('/s3/:key').get(
 	/*typeCheck(['user', 'admin']),*/ async (req, res) => {
 		let file = await S3Helper.download(req.params.key).catch((err) => {
-			console.error(err);
-			JSONResponse.error(req, res, 500, 'Failed to communicate with file storage');
-		});
-		let responseStream = bufferToStream(file.Body);
+			console.error(err)
+			JSONResponse.error(req, res, 500, 'Failed to communicate with file storage')
+		})
+		let responseStream = bufferToStream(file.Body)
 		if (file) {
-			responseStream.pipe(res);
-		} else JSONResponse.error(req, res, 404, 'File not found');
+			responseStream.pipe(res)
+		} else JSONResponse.error(req, res, 404, 'File not found')
 	}
-);
+)
 
-module.exports = router;
+module.exports = router
 
 function logout(req, res) {
-	JWTHelper.killToken(req, res, 'jwt_auth');
-	JSONResponse.success(req, res, 200, 'Logged out successfully!');
+	JWTHelper.killToken(req, res, 'jwt_auth')
+	JSONResponse.success(req, res, 200, 'Logged out successfully!')
 }

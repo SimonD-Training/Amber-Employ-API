@@ -1,8 +1,8 @@
-const { decode } = require('jsonwebtoken');
-const postModel = require('../../../lib/db/models/post.model');
-const JSONResponse = require('../../../lib/json.helper');
-const JWTHelper = require('../../../lib/jwt.helper');
-const S3Helper = require('../../../lib/s3.helper');
+const { decode } = require('jsonwebtoken')
+const postModel = require('../../../lib/db/models/post.model')
+const JSONResponse = require('../../../lib/json.helper')
+const JWTHelper = require('../../../lib/jwt.helper')
+const S3Helper = require('../../../lib/s3.helper')
 
 class postsController {
 	//Read
@@ -12,24 +12,24 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async get(req, res) {
-		let { page, limit, field, value } = req.query;
-		let filterBody = {};
+		let { page, limit, field, value } = req.query
+		let filterBody = {}
 		if (field && value && field.length == value.length) {
 			field.forEach((e, index) => {
-				filterBody[e] = value[index];
-			});
+				filterBody[e] = value[index]
+			})
 		}
-		if (page < 0) page = 1;
+		if (page < 0) page = 1
 		const list = await postModel
 			.find(filterBody)
 			.skip((page - 1) * limit)
 			.limit(limit)
 			.catch((err) => {
-				JSONResponse.error(req, res, 500, 'Database Error', err);
-			});
+				JSONResponse.error(req, res, 500, 'Database Error', err)
+			})
 		if (list.length > 0)
-			JSONResponse.success(req, res, 200, 'Collected matching documents', list);
-		else JSONResponse.error(req, res, 404, 'Could not find any matching documents');
+			JSONResponse.success(req, res, 200, 'Collected matching documents', list)
+		else JSONResponse.error(req, res, 404, 'Could not find any matching documents')
 	}
 
 	/**
@@ -38,13 +38,13 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async getOne(req, res) {
-		let id = req.params.id;
+		let id = req.params.id
 		let post = await postModel.findById(id).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Database Error', err);
-		});
+			JSONResponse.error(req, res, 500, 'Database Error', err)
+		})
 		if (post) {
-			JSONResponse.success(req, res, 200, 'Collected matching document', post);
-		} else JSONResponse.error(req, res, 404, 'Could not find any matching documents');
+			JSONResponse.success(req, res, 200, 'Collected matching document', post)
+		} else JSONResponse.error(req, res, 404, 'Could not find any matching documents')
 	}
 
 	/**
@@ -53,13 +53,13 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async getMine(req, res) {
-		const decoded = JWTHelper.getToken(req, res, 'jwt_auth');
+		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
 		const list = await postModel.find({ author: decoded.self }).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Database Error', err);
-		});
+			JSONResponse.error(req, res, 500, 'Database Error', err)
+		})
 		if (list.length > 0)
-			JSONResponse.success(req, res, 200, 'Collected matching documents', list);
-		else JSONResponse.error(req, res, 404, 'Could not find any matching documents');
+			JSONResponse.success(req, res, 200, 'Collected matching documents', list)
+		else JSONResponse.error(req, res, 404, 'Could not find any matching documents')
 	}
 
 	//Create
@@ -69,17 +69,17 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async add(req, res) {
-		let body = req.body;
-		const now = Date.now().toString(16);
+		let body = req.body
+		const now = Date.now().toString(16)
 
-		const manageupload = await S3Helper.upload(req.file, `${now}_banner`);
-		if (manageupload) body.banner = { key: `${now}_banner`, link: manageupload.Location };
+		const manageupload = await S3Helper.upload(req.file, `${now}_banner`)
+		if (manageupload) body.banner = { key: `${now}_banner`, link: manageupload.Location }
 		// body.banner = { key: `${now}_banner`, link: process.env.ORIGIN };
 
-		let newdoc = new postModel(body);
-		let invalid = undefined;
+		let newdoc = new postModel(body)
+		let invalid = undefined
 		await newdoc.validate().catch((err) => {
-			invalid = true;
+			invalid = true
 			JSONResponse.error(
 				req,
 				res,
@@ -87,14 +87,14 @@ class postsController {
 				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]].properties
 					.message,
 				err.errors[Object.keys(err.errors)[Object.keys(err.errors).length - 1]]
-			);
-		});
+			)
+		})
 		if (!invalid) {
 			const newerdoc = await newdoc.save().catch((err) => {
-				JSONResponse.error(req, res, 500, 'Database Error', err);
-			});
+				JSONResponse.error(req, res, 500, 'Database Error', err)
+			})
 			if (newerdoc)
-				JSONResponse.success(req, res, 202, 'Document added successfully', newerdoc);
+				JSONResponse.success(req, res, 202, 'Document added successfully', newerdoc)
 		}
 	}
 
@@ -105,15 +105,15 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async destroyAny(req, res) {
-		let id = req.params.id;
+		let id = req.params.id
 		const olddoc = await postModel.findByIdAndDelete(id).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Database Error', err);
-		});
+			JSONResponse.error(req, res, 500, 'Database Error', err)
+		})
 
 		if (olddoc) {
-			JSONResponse.success(req, res, 200, 'Successfully removed document');
+			JSONResponse.success(req, res, 200, 'Successfully removed document')
 		} else {
-			JSONResponse.error(req, res, 404, 'Could not find document');
+			JSONResponse.error(req, res, 404, 'Could not find document')
 		}
 	}
 
@@ -123,18 +123,18 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async destroy(req, res) {
-		const decoded = JWTHelper.getToken(req, res, 'jwt_auth');
-		let id = req.params.id;
+		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
+		let id = req.params.id
 		const olddoc = await postModel
 			.findOneAndDelete({ _id: id, author: decoded.self })
 			.catch((err) => {
-				JSONResponse.error(req, res, 500, 'Database Error', err);
-			});
+				JSONResponse.error(req, res, 500, 'Database Error', err)
+			})
 
 		if (olddoc) {
-			JSONResponse.success(req, res, 200, 'Successfully removed document');
+			JSONResponse.success(req, res, 200, 'Successfully removed document')
 		} else {
-			JSONResponse.error(req, res, 404, 'Could not find document');
+			JSONResponse.error(req, res, 404, 'Could not find document')
 		}
 	}
 
@@ -145,16 +145,16 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async updateAny(req, res) {
-		let id = req.params.id;
-		let body = req.body;
-		body.banner = req.file;
+		let id = req.params.id
+		let body = req.body
+		body.banner = req.file
 		const newdoc = await postModel.findByIdAndUpdate(id, body).catch((err) => {
-			JSONResponse.error(req, res, 500, 'Database Error', err);
-		});
+			JSONResponse.error(req, res, 500, 'Database Error', err)
+		})
 		if (newdoc) {
-			JSONResponse.success(req, res, 200, 'Successfully updated document', newdoc);
+			JSONResponse.success(req, res, 200, 'Successfully updated document', newdoc)
 		} else {
-			JSONResponse.error(req, res, 404, 'Could not find document');
+			JSONResponse.error(req, res, 404, 'Could not find document')
 		}
 	}
 
@@ -164,21 +164,21 @@ class postsController {
 	 * @param {import('express').Response} res
 	 */
 	static async update(req, res) {
-		const decoded = JWTHelper.getToken(req, res, 'jwt_auth');
-		let id = req.params.id;
-		let body = req.body;
-		body.banner = req.file;
+		const decoded = JWTHelper.getToken(req, res, 'jwt_auth')
+		let id = req.params.id
+		let body = req.body
+		body.banner = req.file
 		const newdoc = await postModel
 			.findOneAndUpdate({ _id: id, author: decoded.self }, body)
 			.catch((err) => {
-				JSONResponse.error(req, res, 500, 'Database Error', err);
-			});
+				JSONResponse.error(req, res, 500, 'Database Error', err)
+			})
 		if (newdoc) {
-			JSONResponse.success(req, res, 200, 'Successfully updated document', newdoc);
+			JSONResponse.success(req, res, 200, 'Successfully updated document', newdoc)
 		} else {
-			JSONResponse.error(req, res, 404, 'Could not find document');
+			JSONResponse.error(req, res, 404, 'Could not find document')
 		}
 	}
 }
 
-module.exports = postsController;
+module.exports = postsController
