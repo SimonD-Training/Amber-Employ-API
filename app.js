@@ -16,19 +16,19 @@ app.all('', (req, res) => {
 })
 
 // Middlewares
-app.options(
-	'*',
-	cors({
-		origin: CORS,
-		credentials: true,
-	})
-)
-app.use(
-	cors({
-		origin: CORS,
-		credentials: true,
-	})
-)
+// app.options(
+// 	'*',
+// 	cors({
+// 		origin: CORS,
+// 		credentials: true,
+// 	})
+// )
+// app.use(
+// 	cors({
+// 		origin: CORS,
+// 		credentials: true,
+// 	})
+// )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser(SERVER_SECRET))
